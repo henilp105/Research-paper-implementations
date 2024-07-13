@@ -11,6 +11,7 @@ class DecoderBlock(nn.Module):
     """
 
     def __init__(self, n_embed, num_heads, block_size, dropout):
+        super().__init__()
         self.block = Block(n_embed, num_heads, block_size, dropout)
         self.MHSAttention = MHSAttention(num_heads, n_embed, block_size, dropout)
         self.layer_norm = nn.LayerNorm(n_embed)
@@ -29,8 +30,9 @@ class Decoder(nn.Module):
     """
 
     def __init__(self, target_vocab_size, num_layers, n_embed, num_heads, block_size, dropout, device):
+        super().__init__()
         self.word_embedding = nn.Embedding(target_vocab_size, n_embed)
-        self.block = nn.ModuleList([DecoderBlock(n_embed, num_heads, block_size, dropout) for _ in num_layers])
+        self.block = nn.ModuleList([DecoderBlock(n_embed, num_heads, block_size, dropout) for _ in range(num_layers)])
         self.pos_encoder = PositionalEncoding(n_embed, block_size, device)
         self.fc_out = nn.Linear(n_embed, target_vocab_size)
         self.dropout = nn.Dropout(dropout)
