@@ -15,7 +15,7 @@ To set up the repository, please follow the instructions below:
 
 ```bash
 git clone https://github.com/henilp105/Research-paper-implementations.git
-cd research-paper-implementations
+cd Research-paper-implementations
 ```
 
 ## Usage
@@ -30,3 +30,12 @@ python train.py
 
 Feel free to reach out if you have any questions or suggestions. Happy coding!
 
+
+
+### GPT2, resnet/lenet, cross attention, 
+flash attention, sparse attention, MQA, MOE, 
+gemma, bpe tokeniser, llama2 , stable diffusion, 
+GQA, bert, VAE, ALBERT.
+
+clean:
+word2vec, unet, skipgram/cbow , gan, AE.
