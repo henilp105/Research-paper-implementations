@@ -28,27 +28,31 @@ class Block(nn.Module):
 
     def __init__(self, n_embed, num_heads, block_size, dropout):
         super().__init__()
-        self.MHSAttention = MHSAttention(
-            num_heads, n_embed, block_size, dropout)
+        self.MHSAttention = MHSAttention(n_embed,num_heads)
         self.ff = FeedForward(n_embed, dropout)
         self.layer_norm1 = nn.LayerNorm(n_embed)
         self.layer_norm2 = nn.LayerNorm(n_embed)
 
-    def forward(self, x):
-        x = x + self.MHSAttention(x)
+    def forward(self, value, key, query, mask):
+        x = query + self.MHSAttention(key,query, value, mask)
         x = self.layer_norm1(x)
         x = x + self.ff(x)
         x = self.layer_norm2(x)
         return x
+    
+# Testing the Transformer Block
 
+# n_embed = 128  # embedding size, C
+# block_size = 128  # context length, B
+# dropout = 0.0
+# num_heads = 4
+# head_size = n_embed // num_heads
+# num_queries = 100  # number of queries, T
 
-n_embed = 128  # embedding size, C
-block_size = 128  # context length, B
-dropout = 0.0
-num_heads = 4
-head_size = n_embed // num_heads
-num_queries = 100  # number of queries, T
+# x = torch.randn(block_size, num_queries, n_embed)
+# key = torch.randn(block_size, num_queries, n_embed)
+# query = torch.randn(block_size, num_queries, n_embed)
+# mask = torch.ones(num_queries, num_queries)
 
-x = torch.randn(block_size, num_queries, n_embed)
-TransformerBlock = Block(n_embed, num_heads, block_size, dropout)
-print(TransformerBlock(x))
+# TransformerBlock = Block(n_embed, num_heads, block_size, dropout)
+# print(TransformerBlock(x, key, query, mask))

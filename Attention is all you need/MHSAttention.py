@@ -1,61 +1,64 @@
 import torch
 import torch.nn as nn   
 
-class Head(nn.Module):
-    """
-    Head of Self Attention
-    """
-    def __init__(self, n_head,n_embed,block_size,dropout):
-        super().__init__()
-        self.key = nn.Linear(n_embed,n_head,bias=False)
-        self.queries = nn.Linear(n_embed,n_head,bias=False)
-        self.value = nn.Linear(n_embed,n_head,bias=False)
-        self.register_buffer('tril', torch.tril(torch.ones(block_size, block_size))) # lower triangular identity matrix
-        self.dropout = nn.Dropout(dropout)
-    
-    def forward(self,x):
-        b,t,c = x.shape
-        k = self.key(x)
-        q = self.queries(x)
-        v = self.value(x)
-        # k -> (b,q,dk) -> (b,dk,q) , swaps last 2 dims
-        k = k.transpose(-2,-1)
-        # (b,q,dk) . (b,dk,q) -> (b,q,q) / c**0.5
-        scores = torch.matmul(q,k) / torch.sqrt(torch.tensor(c,dtype=torch.float32))
-        # makes a mask of shape (t,t) of T/F and replaces T with -inf for sm->0 (e**-inf=0, no information from future)
-        scores = scores.masked_fill(self.tril[:t, :t] == 0, float('-inf')) # (b,t,t)
-        scores_sm = torch.nn.functional.softmax(scores,dim=-1)
-        attention_output = torch.matmul(scores_sm,v)
-        return attention_output
 
 class MHSAttention(nn.Module):
-    """
-    Multi Head Self attention
-    """
+  """
+  Multi Head Self attention of a Transformer
+  """
 
-    def __init__(self, num_heads,n_embed,block_size,dropout):
-        super().__init__()
-        self.head_size = n_embed // num_heads
-        self.heads = nn.ModuleList([Head(self.head_size,n_embed,block_size,dropout) for _ in range(num_heads)])
-        self.proj = nn.Linear(n_embed,n_embed)
-        self.dropout = nn.Dropout(dropout)
+  def __init__(self,n_embed,num_heads):
+    super().__init__()
+    self.n_embed = n_embed
+    self.num_heads = num_heads
+    self.head_dim = self.n_embed // self.num_heads
 
-    def forward(self,x):
-        out = torch.cat([h(x) for h in self.heads],dim=-1)
-        out = self.dropout(self.proj(out))
-        return out
+    assert (self.head_dim*self.num_heads == self.n_embed), f"{self.head_dim} * {self.num_heads} != {self.n_embed}"
+    self.key = nn.Linear(self.n_embed,self.n_embed)
+    self.query = nn.Linear(self.n_embed,self.n_embed)
+    self.value = nn.Linear(self.n_embed,self.n_embed)
+    
+    self.sf = nn.Softmax(dim=3)
+    self.fc = nn.Linear(self.head_dim * num_heads,n_embed)
 
+  def forward(self, key, query, value,mask = None):
+    key = self.key(key)
+    query = self.query(query)
+    value = self.value(value)
+    # key,query,value shape: [B,T,C]
 
+    B = key.shape[0]
+    key_len,query_len,value_len = key.shape[1], query.shape[1], value.shape[1]
+    
+    # reshape ensures the shape might change due to the decoder block attention
+    # which was calculated using query of decoder but keys,values of encoder's output
+    key = key.reshape(B,key_len,self.num_heads,self.head_dim)
+    query = query.reshape(B,query_len,self.num_heads,self.head_dim)
+    value = value.reshape(B,value_len,self.num_heads,self.head_dim)
 
+    # converts q[nqhd], k[nkhd]
+    # and dot product of query and key along last dim.
+    energies = torch.einsum("nqhd,nkhd->nhqk",[query,key])
 
-dropout = 0.0
-num_heads = 4
-block_size = 128 # context length, B
-num_queries = 100 # number of queries, T
-n_embed = 128 # embedding size, C
-head_size = n_embed // num_heads
+    if mask is not None:
+      # e**inf->0 , no information from future
+      energies = energies.masked_fill(mask==0,float("inf"))
 
+    attention = self.sf(energies/(self.n_embed)**0.5)
+    attention_score = torch.einsum('nhql,nlhd->nqhd',[attention,value])
+    # concat all the heads
+    attention_score = attention_score.reshape(B,query_len,self.n_embed)
+    attention_score = self.fc(attention_score)
+    return attention_score
 
-x = torch.randn(block_size, num_queries, n_embed)
-MHSAttentionBlock = MHSAttention(num_heads,n_embed,block_size,dropout)
-print(MHSAttentionBlock(x))
+# Testing the MHSAttention
+
+# n_embed = 128
+# num_heads = 4
+# key = torch.randn(128,100,128)
+# query = torch.randn(128,100,128)
+# value = torch.randn(128,100,128)
+# mask = torch.ones(100,100)
+
+# MHSAttentionBlock = MHSAttention(n_embed,num_heads)
+# print(MHSAttentionBlock(key,query,value,mask).shape)

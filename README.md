@@ -7,7 +7,6 @@ Welcome to the repository of implementations for various influential research pa
 | Paper Name | ArXiv Link |
 |------------|------------|
 | [Attention Is All You Need](./Attention%20is%20all%20you%20need) | [arXiv:1706.03762](https://arxiv.org/abs/1706.03762) |
-| GPT-2: Generating Text | [arXiv:1901.04085](https://arxiv.org/abs/1901.04085) |
 
 ## Setup
 

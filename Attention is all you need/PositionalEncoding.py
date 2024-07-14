@@ -1,6 +1,5 @@
 import torch
 import torch.nn as nn   
-from Block import Block
 
 class PositionalEncoding(nn.Module):
     """

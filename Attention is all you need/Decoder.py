@@ -13,15 +13,14 @@ class DecoderBlock(nn.Module):
     def __init__(self, n_embed, num_heads, block_size, dropout):
         super().__init__()
         self.block = Block(n_embed, num_heads, block_size, dropout)
-        self.MHSAttention = MHSAttention(num_heads, n_embed, block_size, dropout)
+        self.MHSAttention = MHSAttention(n_embed,num_heads)
         self.layer_norm = nn.LayerNorm(n_embed)
 
 
-    # TODO: fix this src,target mask right shifted outputs
-    def forward(self, x):
-        x = x + self.MHSAttention(x)
+    def forward(self, x, value, key, src_mask, trg_mask):
+        x = x + self.MHSAttention(x, x, x, trg_mask)
         x = self.layer_norm(x)
-        x = self.block(x)
+        x = self.block(value, key, x, src_mask)
         return x
 
 class Decoder(nn.Module):
@@ -41,7 +40,7 @@ class Decoder(nn.Module):
         x = self.dropout(self.word_embedding(x) + self.pos_encoder(x))
 
         for layer in self.block:
-            x = layer(x,enc_out,source_mask,target_mask)
+            x = layer(x,enc_out,enc_out,source_mask,target_mask)
         x = self.fc_out(x)
         return x
 
