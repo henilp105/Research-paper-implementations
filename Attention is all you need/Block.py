@@ -55,4 +55,4 @@ class Block(nn.Module):
 # mask = torch.ones(num_queries, num_queries)
 
 # TransformerBlock = Block(n_embed, num_heads, block_size, dropout)
-# print(TransformerBlock(x, key, query, mask))
+# print(TransformerBlock(x, key, query, mask).isnan().all())

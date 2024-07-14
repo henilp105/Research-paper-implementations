@@ -41,8 +41,8 @@ class MHSAttention(nn.Module):
     energies = torch.einsum("nqhd,nkhd->nhqk",[query,key])
 
     if mask is not None:
-      # e**inf->0 , no information from future
-      energies = energies.masked_fill(mask==0,float("inf"))
+      # e**-inf->0 , no information from future
+      energies = energies.masked_fill(mask==0,float("-inf"))
 
     attention = self.sf(energies/(self.n_embed)**0.5)
     attention_score = torch.einsum('nhql,nlhd->nqhd',[attention,value])
@@ -61,4 +61,4 @@ class MHSAttention(nn.Module):
 # mask = torch.ones(100,100)
 
 # MHSAttentionBlock = MHSAttention(n_embed,num_heads)
-# print(MHSAttentionBlock(key,query,value,mask).shape)
+# print(MHSAttentionBlock(key,query,value,mask).shape, MHSAttentionBlock(key,query,value,mask).isnan().all())
