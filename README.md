@@ -7,6 +7,7 @@ Welcome to the repository of implementations for various influential research pa
 | Paper Name | ArXiv Link |
 |------------|------------|
 | [Attention Is All You Need](./Attention%20is%20all%20you%20need) | [arXiv:1706.03762](https://arxiv.org/abs/1706.03762) |
+| [RoFormer: Enhanced Transformer with Rotary Position Embedding](./RoPE) | [arXiv:2104.09864](https://arxiv.org/pdf/2104.09864) |
 
 ## Setup
 
@@ -34,7 +35,7 @@ Feel free to reach out if you have any questions or suggestions. Happy coding!
 ### GPT2, resnet/lenet, cross attention, 
 flash attention, sparse attention, MQA, MOE, 
 gemma, bpe tokeniser, llama2 , stable diffusion, 
-GQA, bert, VAE, ALBERT.
+GQA, bert, VAE, ALBERT, micrograd.
 
 clean:
 word2vec, unet, skipgram/cbow , gan, AE.
