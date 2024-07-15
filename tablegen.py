@@ -8,7 +8,7 @@ def generate_markdown_table(papers):
         paper_name = paper['name']
         arxiv_link = paper['arxiv']
         repo_url = encode_spaces(paper['repo'])
-        table_rows += f"| [{paper_name}](./{repo_url}) | [{arxiv_link if 'arxiv' in arxiv_link else 'paper'}]({arxiv_link}) |\n"
+        table_rows += f"| [{paper_name}](./{repo_url}) | [{'arXiv:'+arxiv_link.split('/')[-1] if 'arxiv' in arxiv_link else 'paper'}]({arxiv_link}) |\n"
     
     return table_rows
 

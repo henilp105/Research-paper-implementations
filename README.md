@@ -8,6 +8,7 @@ Welcome to the repository of implementations for various influential research pa
 |------------|------------|
 | [Attention Is All You Need](./Attention%20is%20all%20you%20need) | [arXiv:1706.03762](https://arxiv.org/abs/1706.03762) |
 | [RoFormer: Enhanced Transformer with Rotary Position Embedding](./RoPE) | [arXiv:2104.09864](https://arxiv.org/pdf/2104.09864) |
+| [Word2Vec Efficient Estimation of Word Representations in Vector Space](./Word2Vec) | [arXiv:1301.3781](https://arxiv.org/pdf/1301.3781) |
 
 ## Setup
 
@@ -25,7 +26,7 @@ Each paper's implementation is contained within its own directory. To run an imp
 Example:
 ```bash
 cd 'Attention is all you need'
-python train.py
+python main.py
 ```
 
 Feel free to reach out if you have any questions or suggestions. Happy coding!
@@ -38,4 +39,4 @@ gemma, bpe tokeniser, llama2 , stable diffusion,
 GQA, bert, VAE, ALBERT, micrograd.
 
 clean:
-word2vec, unet, skipgram/cbow , gan, AE.
+unet, gan, AE.
